@@ -1,0 +1,7 @@
+// ─── MOCK DATA (when backend not running) ────────────────────────────────────
+export const MOCK_STATS = { totalMembers: 3, activeMembers: 2, inactiveMembers: 1, totalFees: 26000, collectedFees: 22000, pendingFees: 4000 };
+export const MOCK_MEMBERS = [
+  { id: "1", name: "Ahmed Khan", email: "ahmed @example.com", phone: "0300-1234567", plan: "Monthly", joinDate: "2025-01-15", status: "active", fees: [{ id: "f1", month: "January 2025", amount: 3000, paid: true, paidDate: "2025-01-15" }, { id: "f2", month: "February 2025", amount: 3000, paid: true, paidDate: "2025-02-10" }, { id: "f3", month: "March 2025", amount: 3000, paid: false, paidDate: null }] },
+  { id: "2", name: "Sara Ali", email: "sara @example.com", phone: "0311-9876543", plan: "Quarterly", joinDate: "2025-02-01", status: "active", fees: [{ id: "f4", month: "February 2025", amount: 8000, paid: true, paidDate: "2025-02-01" }, { id: "f5", month: "March 2025", amount: 8000, paid: false, paidDate: null }] },
+  { id: "3", name: "Usman Tariq", email: "usman @example.com", phone: "0321-5556677", plan: "Monthly", joinDate: "2024-12-01", status: "inactive", fees: [{ id: "f6", month: "December 2024", amount: 3000, paid: true, paidDate: "2024-12-01" }, { id: "f7", month: "January 2025", amount: 3000, paid: false, paidDate: null }] },
+];
