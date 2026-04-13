@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
 import Fees, { IFees } from "../model/fees.model.js";
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import MemberShip from "../model/member.model.js";
+import { logger } from "../utils/logger.js";
 
 export const getFeesByUserId = async (
 	req: Request,
-	res: Response
-): Promise<Response> => {
+	res: Response,
+	next: NextFunction
+): Promise<Response | undefined> => {
 	try {
 		const userId = new mongoose.Types.ObjectId(req.params.userId as string);
 		const result = await Fees.find().where("userId").equals(userId).lean();
@@ -15,15 +17,15 @@ export const getFeesByUserId = async (
 		}
 		return res.status(200).json(result);
 	} catch (error: any) {
-		return res
-			.status(500)
-			.json({ message: `Failed to fetch fees: ${error.message}` });
+		logger.error(`Error fetching fees for user ${req.params.userId}:`, error);
+		next(error);
 	}
 };
 export const addFeesByUserId = async (
 	req: Request,
-	res: Response
-): Promise<Response> => {
+	res: Response,
+	next: NextFunction
+): Promise<Response | undefined> => {
 	try {
 		const userId = new mongoose.Types.ObjectId(req.params.userId as string);
 
@@ -65,15 +67,15 @@ export const addFeesByUserId = async (
 				errors
 			});
 		}
-		return res
-			.status(500)
-			.json({ message: `Failed to add fees: ${error.message}` });
+		logger.error(`Error adding fees for user ${req.params.userId}:`, error);
+		next(error);
 	}
 };
 export const updateFeesByUserId = async (
 	req: Request,
-	res: Response
-): Promise<Response> => {
+	res: Response,
+	next: NextFunction
+): Promise<Response | undefined> => {
 	try {
 		const userId = new mongoose.Types.ObjectId(req.params.userId as string);
 		console.log(userId, "userId");
@@ -109,8 +111,7 @@ export const updateFeesByUserId = async (
 				errors
 			});
 		}
-		return res
-			.status(500)
-			.json({ message: `Failed to update fees: ${error.message}` });
+		logger.error(`Error updating fees for user ${req.params.userId}:`, error);
+		next(error);
 	}
 };

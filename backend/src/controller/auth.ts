@@ -76,7 +76,7 @@ export const githubCallback = async (
 		// 	{ expiresIn: "7d" }
 		// );
 		res.status(201).json(user);
-	} catch (error: { message: string }) {
+	} catch (error: any) {
 		console.error("GitHub OAuth error:", error.message);
 		res.status(500).json({ message: "OAuth flow failed" });
 	}
