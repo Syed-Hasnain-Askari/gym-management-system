@@ -7,10 +7,25 @@ export const getMembers = async (
 ): Promise<void> => {
 	const page = Number(req.query.page) || 1;
 	const limit = Number(req.query.limit) || 10;
+	const search = (req.query.search as string) || "";
+	const sortField = (req.query.sort as string) || "createdAt";
+	const sortOrder = req.query.order === "asc" ? 1 : -1;
 
 	const skip = (page - 1) * limit;
+
+	// 🔍 Search filter
+	const filter = search
+		? {
+				name: { $regex: search, $options: "i" }
+			}
+		: {};
+
 	try {
-		const members = await MemberShip.find().skip(skip).limit(limit).lean();
+		const members = await MemberShip.find(filter)
+			.sort({ [sortField]: sortOrder })
+			.skip(skip)
+			.limit(limit)
+			.lean();
 		const total = await MemberShip.countDocuments();
 		res.status(200).json({
 			page,
