@@ -3,6 +3,7 @@ import cors from "cors";
 import memberRoutes from "./routes/member.route.js";
 import feesRoutes from "./routes/fees.route.js";
 import dashboardRoutes from "./routes/dashboard.route.js";
+import membershipRoutes from "./routes/membership.route.js";
 import authRoutes from "./routes/auth.route.js";
 import { errorHandler } from "./middleware/error.js";
 
@@ -15,6 +16,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api", memberRoutes);
 app.use("/api", feesRoutes);
 app.use("/api", dashboardRoutes);
+app.use("/api", membershipRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

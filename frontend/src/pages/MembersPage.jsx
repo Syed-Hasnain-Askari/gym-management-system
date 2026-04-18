@@ -1,79 +1,169 @@
 import React, { useState } from "react";
-import { S } from "../styles";
 import { Icons } from "../components/ui/Icons";
 
 // ─── MEMBERS PAGE ─────────────────────────────────────────────────────────────
 export function MembersPage({ members, onAdd, onEdit, onDelete, onFees }) {
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
-  const filtered = members.filter(m => {
-    const matchSearch = m.name.toLowerCase().includes(search.toLowerCase()) || m.email.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === "all" || m.status === filter;
-    return matchSearch && matchFilter;
-  });
+	const [search, setSearch] = useState("");
+	const [filter, setFilter] = useState("all");
 
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
-        <div>
-          <div style={S.pageTitle}>Members</div>
-          <div style={S.pageSubtitle}>{members.length} total members registered</div>
-        </div>
-        <button style={S.btn("primary")} onClick={onAdd}><Icons.plus /> Add Member</button>
-      </div>
+	const filtered = members.filter((m) => {
+		const matchSearch =
+			m.name.toLowerCase().includes(search.toLowerCase()) ||
+			m.email.toLowerCase().includes(search.toLowerCase());
+		const matchFilter = filter === "all" || m.status === filter;
+		return matchSearch && matchFilter;
+	});
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-        <input style={{ ...S.input, width: 280, flex: "none" }} placeholder="Search members..." value={search} onChange={e => setSearch(e.target.value)} />
-        {["all", "active", "inactive"].map(f => (
-          <button key={f} style={{ ...S.btn("ghost"), background: filter === f ? "rgba(249,115,22,0.12)" : "rgba(255,255,255,0.04)", color: filter === f ? "#f97316" : "#7070a0", border: filter === f ? "1px solid rgba(249,115,22,0.3)" : "1px solid transparent" }} onClick={() => setFilter(f)}>
-            {f.charAt(0).toUpperCase() + f.slice(1)}
-          </button>
-        ))}
-      </div>
+	const getBadgeClasses = (type) => {
+		const base =
+			"inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase";
+		if (type === "active" || type === "paid")
+			return `${base} bg-green-500/10 text-green-400`;
+		if (type === "inactive") return `${base} bg-red-500/10 text-red-400`;
+		return `${base} bg-orange-500/12 text-orange-400`;
+	};
 
-      <div style={S.card}>
-        <table style={S.table}>
-          <thead>
-            <tr>
-              {["Member", "Contact", "Plan", "Join Date", "Status", "Actions"].map(h => <th key={h} style={S.th}>{h}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 && (
-              <tr><td colSpan={6} style={{ ...S.td, textAlign: "center", color: "#444460", padding: 32 }}>No members found</td></tr>
-            )}
-            {filtered.map(m => (
-              <tr key={m.id} style={{ transition: "background 0.15s" }}>
-                <td style={S.td}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg,#f97316,#ea580c)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, color: "#fff", flexShrink: 0 }}>
-                      {m.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 700, color: "#e0e0f0", fontSize: 13 }}>{m.name}</div>
-                      <div style={{ fontSize: 11, color: "#444460" }}>ID: {m.id.substring(0, 6)}</div>
-                    </div>
-                  </div>
-                </td>
-                <td style={S.td}>
-                  <div style={{ fontSize: 12, color: "#9090b8" }}>{m.email}</div>
-                  <div style={{ fontSize: 12, color: "#666680" }}>{m.phone}</div>
-                </td>
-                <td style={S.td}><span style={{ ...S.badge("active"), background: "rgba(99,102,241,0.12)", color: "#818cf8" }}>{m.plan}</span></td>
-                <td style={S.td}>{m.joinDate}</td>
-                <td style={S.td}><span style={S.badge(m.status)}>{m.status.toUpperCase()}</span></td>
-                <td style={S.td}>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button title="Manage Fees" style={S.btn("success")} onClick={() => onFees(m)}><Icons.fees /></button>
-                    <button title="Edit" style={S.btn("ghost")} onClick={() => onEdit(m)}><Icons.edit /></button>
-                    <button title="Delete" style={S.btn("danger")} onClick={() => onDelete(m.id)}><Icons.trash /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+	return (
+		<div>
+			<div className="mb-7 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+				<div>
+					<div className="text-2xl md:text-[26px] font-extrabold text-text-title">
+						Members
+					</div>
+					<div className="text-[13px] text-text-muted">
+						{members.length} total members registered
+					</div>
+				</div>
+				<button
+					className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-primary-orange to-secondary-orange px-4.5 py-2.5 text-[13px] font-bold text-white transition-opacity hover:opacity-90"
+					onClick={onAdd}
+				>
+					<Icons.plus /> Add Member
+				</button>
+			</div>
+
+			<div className="mb-5 flex flex-col md:flex-row gap-3">
+				<input
+					className="w-full md:w-70 shrink-0 rounded-lg border border-border-input bg-input-bg px-3.5 py-2.5 text-sm text-text-title outline-none transition-colors focus:border-primary-orange"
+					placeholder="Search members..."
+					value={search}
+					onChange={(e) => setSearch(e.target.value)}
+				/>
+				<div className="flex gap-2 overflow-x-auto pb-1 md:pb-0">
+					{["all", "active", "inactive"].map((f) => (
+						<button
+							key={f}
+							className={`cursor-pointer whitespace-nowrap rounded-lg px-4 py-2 text-[13px] font-semibold transition-all ${
+								filter === f
+									? "border border-primary-orange/30 bg-primary-orange/12 text-primary-orange"
+									: "border border-transparent bg-white/4 text-[#7070a0] hover:bg-white/8"
+							}`}
+							onClick={() => setFilter(f)}
+						>
+							{f.charAt(0).toUpperCase() + f.slice(1)}
+						</button>
+					))}
+				</div>
+			</div>
+
+			<div className="overflow-hidden rounded-2xl border border-border-main bg-card-bg">
+				<div className="overflow-x-auto">
+					<table className="w-full border-collapse min-w-[800px]">
+						<thead>
+							<tr>
+								{[
+									"Member",
+									"Contact",
+									"Plan",
+									"Join Date",
+									"Status",
+									"Actions"
+								].map((h) => (
+									<th
+										key={h}
+										className="border-b border-[#1a1a28] px-4 py-2.5 text-left text-[11px] font-bold tracking-widest text-[#444460] uppercase"
+									>
+										{h}
+									</th>
+								))}
+							</tr>
+						</thead>
+						<tbody>
+							{filtered.length === 0 && (
+								<tr>
+									<td
+										colSpan={6}
+										className="px-4 py-8 text-center text-[13px] text-[#444460]"
+									>
+										No members found
+									</td>
+								</tr>
+							)}
+							{filtered.map((m) => (
+								<tr key={m.id} className="hover:bg-white/1.5 transition-colors">
+									<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+										<div className="flex items-center gap-3">
+											<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-orange to-secondary-orange text-sm font-extrabold text-white">
+												{m.name.charAt(0)}
+											</div>
+											<div>
+												<div className="text-[13px] font-bold text-[#e0e0f0]">
+													{m.name}
+												</div>
+												<div className="text-[11px] text-[#444460]">
+													ID: {m.id.substring(0, 6)}
+												</div>
+											</div>
+										</div>
+									</td>
+									<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+										<div className="text-[12px] text-[#9090b8]">{m.email}</div>
+										<div className="text-[12px] text-[#666680]">{m.phone}</div>
+									</td>
+									<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+										<span className="inline-block rounded-full bg-indigo-500/12 px-2.5 py-0.5 text-[11px] font-bold tracking-wider text-indigo-400 uppercase">
+											{m.plan}
+										</span>
+									</td>
+									<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+										{m.joinDate}
+									</td>
+									<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+										<span className={getBadgeClasses(m.status)}>
+											{m.status}
+										</span>
+									</td>
+									<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+										<div className="flex gap-1.5">
+											<button
+												title="Manage Fees"
+												className="cursor-pointer rounded-lg bg-green-500/12 p-2 text-green-400 transition-colors hover:bg-green-500/20"
+												onClick={() => onFees(m)}
+											>
+												<Icons.fees />
+											</button>
+											<button
+												title="Edit"
+												className="cursor-pointer rounded-lg bg-white/6 p-2 text-[#9090b0] transition-colors hover:bg-white/12"
+												onClick={() => onEdit(m)}
+											>
+												<Icons.edit />
+											</button>
+											<button
+												title="Delete"
+												className="cursor-pointer rounded-lg bg-red-500/12 p-2 text-red-400 transition-colors hover:bg-red-500/20"
+												onClick={() => onDelete(m.id)}
+											>
+												<Icons.trash />
+											</button>
+										</div>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	);
 }

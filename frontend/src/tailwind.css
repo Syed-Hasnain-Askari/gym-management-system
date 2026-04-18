@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  --color-app-bg: #0a0a0f;
+  --color-card-bg: #0f0f1a;
+  --color-input-bg: #14141f;
+  --color-border-main: #1e1e2e;
+  --color-border-sub: #1a1a28;
+  --color-border-input: #2a2a3e;
+  --color-text-main: #e8e8f0;
+  --color-text-title: #f0f0fa;
+  --color-text-muted: #555570;
+  --color-text-dim: #7a7a9a;
+  --color-primary-orange: #f97316;
+  --color-secondary-orange: #ea580c;
+
+  --font-dm-sans: "DM Sans", "Segoe UI", sans-serif;
+}
+
+@layer base {
+  @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap");
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-app-bg);
+    color: var(--color-text-main);
+    font-family: var(--font-dm-sans);
+  }
+
+  input::placeholder {
+    color: #333348;
+  }
+
+  select option {
+    background: #14141f;
+  }
+
+  button:hover {
+    opacity: 0.85;
+  }
+
+  /* Scrollbar Styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a0a0f;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a3e;
+    border-radius: 3px;
+  }
+}
+
+@layer utilities {
+  @keyframes slideIn {
+    from {
+      transform: translateX(40px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease;
+  }
+}
+
+@layer base {
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.015);
+  }
+}
