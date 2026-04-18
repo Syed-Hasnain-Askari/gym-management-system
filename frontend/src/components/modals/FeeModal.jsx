@@ -52,9 +52,9 @@ export function FeeModal({ member, onClose, onAddFee, onToggleFee }) {
 					<div className="mb-3 text-[12px] font-bold tracking-wider text-text-muted uppercase">
 						Add Fee Record
 					</div>
-					<div className="flex gap-2.5">
+					<div className="flex flex-col sm:flex-row gap-3">
 						<select
-							className="flex-[2] rounded-lg border border-border-input bg-card-bg px-3.5 py-2.5 text-sm text-[#e0e0f0] outline-none transition-colors focus:border-primary-orange"
+							className="w-full sm:flex-[2] rounded-lg border border-border-input bg-card-bg px-3.5 py-2.5 text-sm text-[#e0e0f0] outline-none transition-colors focus:border-primary-orange"
 							value={form.month}
 							onChange={(e) =>
 								setForm((f) => ({ ...f, month: e.target.value }))
@@ -66,7 +66,7 @@ export function FeeModal({ member, onClose, onAddFee, onToggleFee }) {
 							))}
 						</select>
 						<input
-							className="flex-[1] rounded-lg border border-border-input bg-card-bg px-3.5 py-2.5 text-sm text-[#e0e0f0] outline-none transition-colors focus:border-primary-orange"
+							className="w-full sm:flex-[1] rounded-lg border border-border-input bg-card-bg px-3.5 py-2.5 text-sm text-[#e0e0f0] outline-none transition-colors focus:border-primary-orange"
 							type="number"
 							placeholder="Amount (PKR)"
 							value={form.amount}
@@ -75,7 +75,7 @@ export function FeeModal({ member, onClose, onAddFee, onToggleFee }) {
 							}
 						/>
 						<button
-							className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-gradient-to-br from-primary-orange to-secondary-orange px-4 py-2 text-[13px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+							className="w-full sm:w-auto inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-gradient-to-br from-primary-orange to-secondary-orange px-4 py-2 text-[13px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
 							disabled={!form.month || !form.amount}
 							onClick={() => {
 								if (form.month && form.amount) {
