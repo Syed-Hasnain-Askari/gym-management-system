@@ -8,6 +8,7 @@ import { MembersPage } from "./pages/MembersPage";
 import { FeesPage } from "./pages/FeesPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { Sidebar } from "./components/layout/Sidebar";
+import { ChatBubble } from "./components/ui/ChatBubble";
 
 export default function App() {
 	const [page, setPage] = useState("dashboard");
@@ -165,7 +166,7 @@ export default function App() {
 				{/* Mobile Header */}
 				<div className="flex items-center justify-between mb-6 md:hidden">
 					<div className="text-xl font-extrabold text-primary-orange">GymPro</div>
-					<button 
+					<button
 						onClick={() => setIsMobileMenuOpen(true)}
 						className="p-2 bg-card-bg border border-border-main rounded-lg"
 					>
@@ -207,6 +208,9 @@ export default function App() {
 			)}
 
 			{toast && <Toast msg={toast.msg} type={toast.type} />}
+
+			{/* Chat Bubble - Position handled internally */}
+			<ChatBubble />
 		</div>
 	);
 }
