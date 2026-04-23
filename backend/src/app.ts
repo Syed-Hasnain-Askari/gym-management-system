@@ -8,9 +8,6 @@ import authRoutes from "./routes/auth.route.js";
 import nlQueryRoutes from "./routes/nlQuery.route.js";
 import { errorHandler } from "./middleware/error.js";
 
-import dotenv from "dotenv";
-dotenv.config();
-
 
 const app = express();
 

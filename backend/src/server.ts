@@ -1,8 +1,7 @@
-import app from "./app.js";
 import config from "./config/index.js";
 import { logger } from "./utils/logger.js";
 import {connectDB} from "./config/database.js";
-
+import app from "./app.js";
 const PORT = process.env.PORT;
 
 let server: any;
