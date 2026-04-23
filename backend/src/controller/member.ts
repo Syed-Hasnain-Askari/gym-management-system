@@ -1,5 +1,5 @@
 import { logger } from "../utils/logger.js";
-import MemberShip from "../model/member.model.js";
+import Member from "../model/member.model.js";
 import { NextFunction, Request, Response } from "express";
 
 export const getMembers = async (
@@ -23,12 +23,12 @@ export const getMembers = async (
 		: {};
 
 	try {
-		const members = await MemberShip.find(filter)
+		const members = await Member.find(filter)
 			.sort({ [sortField]: sortOrder })
 			.skip(skip)
 			.limit(limit)
 			.lean();
-		const total = await MemberShip.countDocuments();
+		const total = await Member.countDocuments();
 		res.status(200).json({
 			page,
 			limit,
@@ -48,7 +48,7 @@ export const addMembers = async (
 	next: NextFunction
 ): Promise<Response | undefined> => {
 	try {
-		await MemberShip.create(req.body);
+		await Member.create(req.body);
 
 		return res.status(201).json({
 			message: "Member added successfully"
@@ -78,7 +78,7 @@ export const editMember = async (
 ): Promise<Response | undefined> => {
 	try {
 		const member_id = req.params.id;
-		await MemberShip.findByIdAndUpdate(member_id, req.body, {
+		await Member.findByIdAndUpdate(member_id, req.body, {
 			new: true,
 			runValidators: true
 		});
@@ -109,7 +109,7 @@ export const deleteMember = async (
 ): Promise<Response | undefined> => {
 	try {
 		const member_id = req.params.id;
-		await MemberShip.findByIdAndDelete(member_id);
+		await Member.findByIdAndDelete(member_id);
 		return res.status(200).json({
 			message: "Member deleted successfully"
 		});
@@ -138,7 +138,7 @@ export const getMemberById = async (
 ): Promise<Response | undefined> => {
 	try {
 		const member_id = req.params.id;
-		const member = await MemberShip.findById(member_id);
+		const member = await Member.findById(member_id);
 		if (!member) {
 			return res.status(404).json({
 				message: "Member not found"

@@ -7,21 +7,30 @@ import mongoose, {
 import { ref } from "node:process";
 
 export interface IMemberShip extends Document {
-	paymentId: Types.ObjectId;
+	memberId: Types.ObjectId;
+	paymentId: string;
 	plain: string;
-	status: "active" | "unactive";
+	status: "active" | "inactive";
 	startDate: Date;
 	endDate: Date;
 }
 
 const MembershipSchema: Schema = new Schema({
+	memberId: {
+		type: Types.ObjectId,
+		ref: "MemberShip",
+		required: true
+	},
 	paymentId: {
-		type: mongoose.Schema.Types.ObjectId,
+		type: String,
 		required: true
 	},
 	plain: {
 		type: String,
-		ref: "MemberShip",
+		enum: {
+			values: ["monthly", "yearly"],
+			message: "Please select a valid membership type"
+		},
 		required: true
 	},
 	status: {

@@ -9,44 +9,25 @@ export interface IMember extends Document {
 	createdAt: Date;
 }
 
-const MemberShipSchema: Schema = new Schema({
-	name: {
-		type: String,
-		required: [true, "Please add a name"]
-	},
-	email: {
-		type: String,
-		required: [true, "Please add an email"],
-		unique: true,
-		match: [/\S+@\S+\.\S+/, "Please add a valid email"]
-	},
-	phoneNumber: {
-		type: String
-	},
-	membershipType: {
-		type: String,
-		enum: {
-			values: ["monthly", "yearly"],
-			message: "Please select a valid membership type"
+const MemberSchema: Schema = new Schema(
+	{
+		name: {
+			type: String,
+			required: [true, "Please add a name"]
 		},
-		required: [true, "Please add a membership type"],
-		default: "monthly"
-	},
-	status: {
-		type: String,
-		enum: {
-			values: ["active", "inactive"],
-			message: "Please select a valid status"
+		email: {
+			type: String,
+			required: [true, "Please add an email"],
+			unique: true,
+			match: [/\S+@\S+\.\S+/, "Please add a valid email"]
 		},
-		required: [true, "Please add a status"],
-		default: "inactive"
+		phoneNumber: {
+			type: String
+		}
 	},
-	createdAt: {
-		type: Date,
-		default: Date.now
-	}
-});
+	{ timestamps: true }
+);
 
-const MemberShip = mongoose.model<IMember>("MemberShip", MemberShipSchema);
+const Member = mongoose.model<IMember>("Member", MemberSchema);
 
-export default MemberShip;
+export default Member;

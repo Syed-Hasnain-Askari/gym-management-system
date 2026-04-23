@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Fees, { IFees } from "../model/fees.model.js";
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import MemberShip from "../model/member.model.js";
 import { logger } from "../utils/logger.js";
 
