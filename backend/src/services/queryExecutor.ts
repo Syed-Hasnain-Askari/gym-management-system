@@ -14,6 +14,7 @@ export const executeQuery = async ({
   filter,
   projection
 }: QueryPayload): Promise<Document[]> => {
+
   await connectDB();
 
   const db = mongoose.connection.db;
