@@ -72,7 +72,7 @@ FeesSchema.index(
 );
 
 // Virtual to get month name from dueDate
-FeesSchema.virtual("month").get(function () {
+FeesSchema.virtual("month").get(function (this: IFees) {
 	return this.dueDate.toLocaleString("default", { month: "long" });
 });
 

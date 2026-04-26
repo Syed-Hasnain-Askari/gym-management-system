@@ -4,11 +4,22 @@ import type { Request, Response, NextFunction } from "express";
 import MemberShip from "../model/member.model.js";
 import { logger } from "../utils/logger.js";
 
-// Helper — get start and end of a month from a given date
 function getMonthRange(date: Date): { start: Date; end: Date } {
 	const start = new Date(date.getFullYear(), date.getMonth(), 1);
 	const end = new Date(date.getFullYear(), date.getMonth() + 1, 1);
 	return { start, end };
+}
+
+function getSingleParam(value: string | string[] | undefined): string | null {
+	if (typeof value === "string") {
+		return value;
+	}
+
+	if (Array.isArray(value) && typeof value[0] === "string") {
+		return value[0];
+	}
+
+	return null;
 }
 
 export const getFeesByUserId = async (
@@ -17,8 +28,12 @@ export const getFeesByUserId = async (
 	next: NextFunction
 ): Promise<Response | undefined> => {
 	try {
-		const userId = new mongoose.Types.ObjectId(req.params.userId);
+		const rawUserId = getSingleParam(req.params.userId);
+		if (!rawUserId) {
+			return res.status(400).json({ message: "Invalid user ID." });
+		}
 
+		const userId = new mongoose.Types.ObjectId(rawUserId);
 		const result = await Fees.find({ userId }).lean({ virtuals: true });
 
 		if (result.length === 0) {
@@ -38,23 +53,25 @@ export const addFeesByUserId = async (
 	next: NextFunction
 ): Promise<Response | undefined> => {
 	try {
-		const userId = new mongoose.Types.ObjectId(req.params.userId);
+		const rawUserId = getSingleParam(req.params.userId);
+		if (!rawUserId) {
+			return res.status(400).json({ message: "Invalid user ID." });
+		}
 
-		// Step 1 — check membership exists
+		const userId = new mongoose.Types.ObjectId(rawUserId);
 		const userExists = await MemberShip.findById(userId);
+
 		if (!userExists) {
 			return res.status(404).json({ message: "Membership not found." });
 		}
 
-		// Step 2 — validate dueDate exists in body
 		if (!req.body.dueDate) {
 			return res.status(400).json({ message: "dueDate is required." });
 		}
 
 		const dueDate = new Date(req.body.dueDate);
-
-		// Step 3 — block future months
 		const now = new Date();
+
 		if (
 			dueDate.getFullYear() > now.getFullYear() ||
 			(dueDate.getFullYear() === now.getFullYear() &&
@@ -65,7 +82,6 @@ export const addFeesByUserId = async (
 			});
 		}
 
-		// Step 4 — prevent duplicate fee for same month
 		const { start, end } = getMonthRange(dueDate);
 		const existingFee = await Fees.findOne({
 			userId,
@@ -78,7 +94,6 @@ export const addFeesByUserId = async (
 			});
 		}
 
-		// Step 5 — create fee
 		const fee = await Fees.create({
 			...req.body,
 			dueDate,
@@ -92,8 +107,10 @@ export const addFeesByUserId = async (
 			for (const field in error.errors) {
 				errors[field] = error.errors[field].message;
 			}
+
 			return res.status(400).json({ message: "Validation failed.", errors });
 		}
+
 		logger.error(`Error adding fees for user ${req.params.userId}:`, error);
 		next(error);
 	}
@@ -105,15 +122,18 @@ export const updateFeesByUserId = async (
 	next: NextFunction
 ): Promise<Response | undefined> => {
 	try {
-		const userId = new mongoose.Types.ObjectId(req.params.userId);
+		const rawUserId = getSingleParam(req.params.userId);
+		if (!rawUserId) {
+			return res.status(400).json({ message: "Invalid user ID." });
+		}
 
-		// Step 1 — check membership exists
+		const userId = new mongoose.Types.ObjectId(rawUserId);
 		const userExists = await MemberShip.findById(userId);
+
 		if (!userExists) {
 			return res.status(404).json({ message: "Membership not found." });
 		}
 
-		// Step 2 — validate dueDate exists in body
 		if (!req.body.dueDate) {
 			return res
 				.status(400)
@@ -123,7 +143,6 @@ export const updateFeesByUserId = async (
 		const dueDate = new Date(req.body.dueDate);
 		const { start, end } = getMonthRange(dueDate);
 
-		// Step 3 — find and update by userId + month range
 		const updatedFee = await Fees.findOneAndUpdate(
 			{
 				userId,
@@ -149,8 +168,10 @@ export const updateFeesByUserId = async (
 			for (const field in error.errors) {
 				errors[field] = error.errors[field].message;
 			}
+
 			return res.status(400).json({ message: "Validation failed.", errors });
 		}
+
 		logger.error(`Error updating fees for user ${req.params.userId}:`, error);
 		next(error);
 	}
