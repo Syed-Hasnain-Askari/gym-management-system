@@ -6,6 +6,7 @@ import dashboardRoutes from "./routes/dashboard.route.js";
 import membershipRoutes from "./routes/membership.route.js";
 import authRoutes from "./routes/auth.route.js";
 import nlQueryRoutes from "./routes/nlQuery.route.js";
+import insightRoutes from "./routes/insight.route.js";
 import { errorHandler } from "./middleware/error.js";
 
 
@@ -20,6 +21,7 @@ app.use("/api", feesRoutes);
 app.use("/api", dashboardRoutes);
 app.use("/api", membershipRoutes);
 app.use("/api", nlQueryRoutes);
+app.use("/api", insightRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
