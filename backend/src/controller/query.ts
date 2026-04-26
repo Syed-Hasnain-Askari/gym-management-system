@@ -16,7 +16,7 @@ export const query = async (
 
 		const payload = await handleQuestion(question);
 		const { intent, ...responseBody } = payload;
-		logger.info({ intent, question }, "Intent classified");
+		logger.info("Intent classified", { intent, question });
 		return res.status(200).json(responseBody);
 	} catch (err) {
 		next(err);
