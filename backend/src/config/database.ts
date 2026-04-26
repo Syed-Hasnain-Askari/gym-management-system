@@ -3,7 +3,13 @@ import { logger } from "../utils/logger.js";
 
 export const connectDB = async () => {
 	try {
-		const conn = await mongoose.connect(process.env.MONGO_URI as string);
+		const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+
+		if (!mongoUri) {
+			throw new Error("MONGO_URI or MONGODB_URI is required");
+		}
+
+		const conn = await mongoose.connect(mongoUri);
 		logger.info(`MongoDB Connected: ${conn.connection.host}`);
 	} catch (err: any) {
 		logger.error(`Error: ${err.message}`);
