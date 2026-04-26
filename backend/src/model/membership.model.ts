@@ -18,7 +18,7 @@ export interface IMemberShip extends Document {
 const MembershipSchema: Schema = new Schema({
 	memberId: {
 		type: Types.ObjectId,
-		ref: "MemberShip",
+		ref: "Member",
 		required: true
 	},
 	paymentId: {
