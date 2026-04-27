@@ -2,6 +2,19 @@ import { Request, Response, NextFunction } from "express";
 import Membership from "../model/membership.model.js";
 import { logger } from "../utils/logger.js";
 
+export const getallMemberships = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const result = await Membership.find().lean({ virtuals: true });
+		return res.status(200).json({ success: true, data: result });
+	} catch (error) {
+		logger.error(`Error fetching all memberships:`, error);
+		next(error);
+	}
+};
 export const purchaseMembership = async (
 	req: Request,
 	res: Response,
