@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 
 const CHAT_STORAGE_KEY = "gymChatHistory";
 const MAX_CHARACTERS = 100;
+const API_BASE_URL =
+	import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export function ChatBubble() {
 	const [messages, setMessages] = useState([]);
@@ -42,7 +44,7 @@ export function ChatBubble() {
 
 	const getReply = async (userMessage) => {
 		try {
-			const response = await fetch("http://localhost:5000/api/nlQuery/", {
+			const response = await fetch(`${API_BASE_URL}/api/nlQuery/`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json"
