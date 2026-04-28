@@ -9,7 +9,7 @@ import { ref } from "node:process";
 export interface IMemberShip extends Document {
 	memberId: Types.ObjectId;
 	paymentId: string;
-	plain: string;
+	plan: string;
 	status: "active" | "inactive";
 	startDate: Date;
 	endDate: Date;
@@ -25,7 +25,7 @@ const MembershipSchema: Schema = new Schema({
 		type: String,
 		required: true
 	},
-	plain: {
+	plan: {
 		type: String,
 		enum: {
 			values: ["monthly", "yearly"],

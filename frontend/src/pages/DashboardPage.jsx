@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { apiFetch } from "../utils/api";
+import api from "../utils/api";
 import { InsightCard } from "../components/ui/InsightCard";
+import { useGymData } from "../context/GymDataContext";
 
 function buildFallbackInsights(stats) {
 	return [
@@ -28,7 +29,8 @@ function buildFallbackInsights(stats) {
 	];
 }
 
-export function DashboardPage({ stats, members }) {
+export function DashboardPage() {
+	const { stats, members } = useGymData();
 	const [insights, setInsights] = useState(() => buildFallbackInsights(stats));
 	const [insightsState, setInsightsState] = useState("loading");
 
@@ -38,23 +40,46 @@ export function DashboardPage({ stats, members }) {
 		async function loadInsights() {
 			setInsightsState("loading");
 
-			const response = await apiFetch("/insights");
-			const liveInsights = Array.isArray(response?.insights)
-				? response.insights.slice(0, 3)
-				: [];
+			try {
+				const response = await api.get("/insights");
+				const liveInsights = Array.isArray(response?.insights)
+					? response.insights.slice(0, 3)
+					: [];
 
-			if (!isMounted) {
-				return;
+				if (!isMounted) {
+					return;
+				}
+
+				if (liveInsights.length > 0) {
+					setInsights(liveInsights);
+					setInsightsState("live");
+					return;
+				}
+
+				setInsights(buildFallbackInsights(stats));
+				setInsightsState("fallback");
+			} catch (error) {
+				if (!isMounted) {
+					return;
+				}
+
+				if (error?.isRateLimit === true) {
+					setInsights([
+						{
+							id: "rate-limit",
+							type: "danger",
+							title: "Rate limit reached",
+							description: error.message,
+							metric: ""
+						},
+						...buildFallbackInsights(stats).slice(0, 2)
+					]);
+				} else {
+					setInsights(buildFallbackInsights(stats));
+				}
+
+				setInsightsState("fallback");
 			}
-
-			if (liveInsights.length > 0) {
-				setInsights(liveInsights);
-				setInsightsState("live");
-				return;
-			}
-
-			setInsights(buildFallbackInsights(stats));
-			setInsightsState("fallback");
 		}
 
 		loadInsights();
@@ -126,7 +151,11 @@ export function DashboardPage({ stats, members }) {
 
 			<div className="mb-8 grid grid-cols-1 gap-4 xl:grid-cols-3">
 				{insights.map((insight, index) => (
-					<InsightCard key={insight.id || index} insight={insight} index={index} />
+					<InsightCard
+						key={insight.id || index}
+						insight={insight}
+						index={index}
+					/>
 				))}
 			</div>
 

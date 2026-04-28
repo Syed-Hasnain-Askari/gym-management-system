@@ -9,7 +9,6 @@ import nlQueryRoutes from "./routes/nlQuery.route.js";
 import insightRoutes from "./routes/insight.route.js";
 import { errorHandler } from "./middleware/error.js";
 
-
 const app = express();
 
 app.use(express.json());

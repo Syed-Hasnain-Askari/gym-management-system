@@ -1,9 +1,11 @@
 import React from "react";
 import { StatCard } from "../components/ui/StatCard";
 import { Icons } from "../components/ui/Icons";
+import { useGymData } from "../context/GymDataContext";
 
 // ─── FEES PAGE ────────────────────────────────────────────────────────────────
-export function FeesPage({ members }) {
+export function FeesPage() {
+	const { members } = useGymData();
 	const allFees = members.flatMap((m) =>
 		m.fees.map((f) => ({ ...f, memberName: m.name }))
 	);

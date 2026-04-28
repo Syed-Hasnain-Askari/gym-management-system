@@ -4,8 +4,6 @@ export interface IMember extends Document {
 	name: string;
 	email: string;
 	phoneNumber: string;
-	membershipType: "Monthly" | "Yearly";
-	status: "Active" | "Inactive";
 	createdAt: Date;
 }
 

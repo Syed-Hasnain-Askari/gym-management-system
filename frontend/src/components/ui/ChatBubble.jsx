@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import api from "../../utils/api";
 
 const CHAT_STORAGE_KEY = "gymChatHistory";
 const MAX_CHARACTERS = 100;
@@ -44,29 +45,22 @@ export function ChatBubble() {
 
 	const getReply = async (userMessage) => {
 		try {
-			const response = await fetch(`${API_BASE_URL}/api/nlQuery/`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify({ question: userMessage })
+			const response = await api.post("/nlQuery", {
+				question: userMessage
 			});
 
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-
-			const data = await response.json();
-
-			if (data.success) {
+			if (response.data?.success) {
 				return {
-					text: data.summary || "I processed your request.",
-					payload: data
+					text: response.data.summary || "I processed your request.",
+					payload: response.data
 				};
 			}
 
-			if (data.message) {
-				return { text: data.message, payload: null };
+			if (response.data?.message) {
+				return {
+					text: response.data.message,
+					payload: null
+				};
 			}
 
 			return {
@@ -75,8 +69,16 @@ export function ChatBubble() {
 			};
 		} catch (error) {
 			console.error("Error fetching from NLQuery endpoint:", error);
+
+			if (error.isRateLimit) {
+				return {
+					text: error.message || "Too many requests. Please slow down.",
+					payload: null
+				};
+			}
+
 			return {
-				text: "I'm experiencing technical difficulties. Please try again later",
+				text: "I'm experiencing technical difficulties. Please try again later.",
 				payload: null
 			};
 		}
