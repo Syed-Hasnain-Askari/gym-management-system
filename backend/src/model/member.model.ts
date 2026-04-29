@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IMember extends Document {
 	name: string;
 	email: string;
-	phoneNumber: string;
+	phone: string;
 	createdAt: Date;
 }
 
@@ -19,7 +19,7 @@ const MemberSchema: Schema = new Schema(
 			unique: true,
 			match: [/\S+@\S+\.\S+/, "Please add a valid email"]
 		},
-		phoneNumber: {
+		phone: {
 			type: String
 		}
 	},

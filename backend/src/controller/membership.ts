@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import Membership from "../model/membership.model.js";
+import Membership, { IMemberShip } from "../model/membership.model.js";
 import Member from "../model/member.model.js";
 import { logger } from "../utils/logger.js";
 import mongoose from "mongoose";
@@ -108,7 +108,7 @@ export const getMemberships = async (
 			limit,
 			total,
 			totalPages: Math.ceil(total / limit),
-			data: memberships
+			result: memberships
 		});
 	} catch (error: any) {
 		logger.error("Error fetching memberships:", error);
@@ -120,22 +120,34 @@ export const purchaseMembership = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	const { name, email, phoneNumber, plan } = req.body; // 👈 HERE
+	console.log("Request body:", req.body);
+	const { name, email, phone, plan } = req.body;
+	if (name === undefined || email === undefined || plan === undefined) {
+		return res.status(400).json({
+			success: false,
+			message: "Missing required fields: name, email, and plan are required."
+		});
+	}
 
 	const session = await mongoose.startSession();
 	session.startTransaction();
 
 	try {
-		// 1. Create Member
-		const member = await Member.create([{ name, email, phoneNumber }], {
-			session
-		});
+		// 1. Find or Create Member
+		let member = await Member.findOne({ email }).session(session);
+
+		if (!member) {
+			const created = await Member.create([{ name, email, phone }], {
+				session
+			});
+			member = created[0];
+		}
 
 		// 2. Create Membership
 		const membership = await Membership.create(
 			[
 				{
-					memberId: member[0]._id,
+					memberId: member._id,
 					paymentId: Date.now().toString(),
 					plan,
 					status: "active",
@@ -153,18 +165,23 @@ export const purchaseMembership = async (
 
 		res.status(201).json({
 			success: true,
-			data: {
-				member: member[0],
-				membership: membership[0]
+			result: {
+				...member.toObject(),
+				...membership[0].toObject()
 			}
 		});
-		logger.info(
-			`Member ${member[0]._id} created with membership ${membership[0]._id}`
-		);
-	} catch (err) {
+	} catch (err: any) {
 		await session.abortTransaction();
 		session.endSession();
-		logger.error("Error creating member with membership:", err);
+
+		// 🔥 Handle duplicate error cleanly
+		if (err.code === 11000) {
+			return res.status(400).json({
+				success: false,
+				message: "Email already exists"
+			});
+		}
+
 		next(err);
 	}
 };
@@ -191,22 +208,18 @@ export const updateMembership = async (
 			throw new Error("Member not found");
 		}
 
-		// 2. Find active membership
-		const membership = await Membership.findOne({
-			memberId,
-			status: "active"
-		}).session(session);
+		// 2. Get latest membership (NOT only active)
+		const membership = await Membership.findOne({ memberId })
+			.sort({ createdAt: -1 })
+			.session(session);
 
 		let updatedMembership = null;
 
-		// 3. Update membership if plan/status provided
-		if (membership && (plan || status)) {
+		if (membership) {
 			const updatedFields: any = {};
 
 			if (plan) {
 				updatedFields.plan = plan;
-
-				// recalculate end date when plan changes
 				updatedFields.endDate = new Date(
 					Date.now() + (plan === "monthly" ? 30 : 365) * 24 * 60 * 60 * 1000
 				);
@@ -216,22 +229,28 @@ export const updateMembership = async (
 				updatedFields.status = status;
 			}
 
-			updatedMembership = await Membership.findByIdAndUpdate(
-				membership._id,
-				updatedFields,
-				{ new: true, session }
-			);
+			if (Object.keys(updatedFields).length > 0) {
+				updatedMembership = await Membership.findByIdAndUpdate(
+					membership._id,
+					updatedFields,
+					{ new: true, session }
+				);
+			}
 		}
 
 		await session.commitTransaction();
+
+		// ✅ Prepare response BEFORE ending session
+		const responseData = {
+			...member.toObject(),
+			...(updatedMembership ? updatedMembership.toObject() : {})
+		};
+
 		session.endSession();
 
 		res.status(200).json({
 			success: true,
-			data: {
-				member,
-				membership: updatedMembership
-			}
+			result: responseData
 		});
 	} catch (error) {
 		await session.abortTransaction();

@@ -11,5 +11,4 @@ const router = express.Router();
 router.get("/membership", generalLimiter, getMemberships);
 router.post("/membership", generalLimiter, purchaseMembership);
 router.patch("/membership/:memberId", generalLimiter, updateMembership);
-
 export default router;
