@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../../utils/api";
 
 const initialState = {
-	data: [],
+	member: [],
 	loading: false,
 	isFetching: false, // for fetchAllMembers
 	isDeleting: false, // for deleteMember
@@ -23,9 +23,9 @@ export const fetchAllMembers = createAsyncThunk(
 );
 export const addMember = createAsyncThunk(
 	"member/addMember",
-	async (thunkAPI) => {
+	async (data, thunkAPI) => {
 		try {
-			const response = await api.post(`/membership`);
+			const response = await api.post(`/membership`, data);
 			return response.data;
 		} catch (error) {
 			return thunkAPI.rejectWithValue(error.response.data);
@@ -34,10 +34,9 @@ export const addMember = createAsyncThunk(
 );
 export const updateMember = createAsyncThunk(
 	"member/updateMember",
-	async (memberId, thunkAPI) => {
-		console.log(memberId, "member/updateMember");
+	async (data, thunkAPI) => {
 		try {
-			const response = await api.patch(`/membership/${memberId}`);
+			const response = await api.patch(`/membership/${data.memberId}`, data);
 			return response.data;
 		} catch (error) {
 			return thunkAPI.rejectWithValue(error.response.data);
@@ -71,9 +70,10 @@ export const memberSlice = createSlice({
 			state.isFetching = true;
 		});
 		builder.addCase(fetchAllMembers.fulfilled, (state, action) => {
+			console.log(action.payload, "fetchAllMembers.fulfilled");
 			state.isFetching = false;
 			state.isSuccess = true;
-			state.data = action.payload;
+			state.member = action.payload.result;
 		});
 		builder.addCase(fetchAllMembers.rejected, (state, action) => {
 			state.isFetching = false;
@@ -85,11 +85,13 @@ export const memberSlice = createSlice({
 			state.isLoading = true;
 		});
 		builder.addCase(addMember.fulfilled, (state, action) => {
+			console.log(action.payload, "addMember.fulfilled");
 			state.isLoading = false;
 			state.isSuccess = true;
-			state.data = action.payload;
+			state.member = [...state.member, action.payload.result];
 		});
 		builder.addCase(addMember.rejected, (state, action) => {
+			console.log(action.payload, "addMember.rejected");
 			state.isLoading = false;
 			state.error = action.payload.error;
 			state.isError = false;
@@ -100,16 +102,18 @@ export const memberSlice = createSlice({
 			state.isLoading = true;
 		});
 		builder.addCase(updateMember.fulfilled, (state, action) => {
+			const { _id } = action.payload.result;
 			state.isLoading = false;
 			state.isSuccess = true;
-			const itemIndex = state.data.findIndex(
-				(item) => item._id === action.payload._id
-			);
+
+			const itemIndex = state.member?.findIndex((item) => item._id === _id);
+			console.log(itemIndex, "itemIndex");
 			if (itemIndex !== -1) {
-				state.data = state.data.splice(itemIndex, 1, action.payload);
+				state.member[itemIndex] = action.payload.result; // ✅ correct
 			}
 		});
 		builder.addCase(updateMember.rejected, (state, action) => {
+			console.log(action.payload, "updateMember.rejected");
 			state.isLoading = false;
 			state.error = action.payload.error;
 			state.isError = false;
@@ -129,8 +133,8 @@ export const memberSlice = createSlice({
 			state.isDeleting = false;
 			state.isSuccess = true;
 
-			if (state.data) {
-				state.data = state.data.filter((item) => item._id !== id);
+			if (state.member) {
+				state.member = state.member?.filter((item) => item._id !== id);
 			}
 		});
 

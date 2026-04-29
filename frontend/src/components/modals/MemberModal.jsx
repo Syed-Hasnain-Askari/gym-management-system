@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Icons } from "../ui/Icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
 	addMember,
 	updateMember
 } from "../../redux/features/member/member.slice";
+import { useGymData } from "../../context/GymDataContext";
+import Spinner from "../ui/Spinner";
 
-export function MemberModal({ member, onClose, onSave }) {
+export function MemberModal({ member, onClose }) {
+	const { showToast } = useGymData();
+	const { isLoading } = useSelector((state) => state.member);
 	const dispatch = useDispatch();
 	// ─── State ─────────────────────────────────────────────
-	const [form, setForm] = useState({
+	const initialForm = {
 		name: "",
 		email: "",
 		phone: "",
-		plan: "Monthly",
+		plan: "monthly",
 		status: "active"
-	});
+	};
 
-	// ─── Sync form when editing ─────────────────────────────
-	useEffect(() => {
-		if (member) {
-			setForm(member);
-		}
-	}, [member]);
+	const [form, setForm] = useState(member || initialForm);
 
 	// ─── Handle input change ────────────────────────────────
 	const handleChange = (key, value) => {
@@ -30,11 +29,42 @@ export function MemberModal({ member, onClose, onSave }) {
 	};
 
 	// ─── Submit handler ─────────────────────────────────────
-	const handleSubmit = () => {
+	const handleSubmit = async () => {
 		if (member) {
-			dispatch(updateMember({ id: member._id, ...form }));
+			const response = await dispatch(updateMember(form));
+			if (response.meta.requestStatus === "fulfilled") {
+				showToast("Member updated successfully!");
+			}
+			onClose();
+			setForm({
+				name: "",
+				email: "",
+				phone: "",
+				plan: "monthly",
+				status: "active"
+			});
 		} else {
-			dispatch(addMember(form));
+			try {
+				const response = await dispatch(addMember(form));
+				if (response.meta.requestStatus === "fulfilled") {
+					showToast("Member added successfully!");
+				}
+				onClose();
+				setForm({
+					name: "",
+					email: "",
+					phone: "",
+					plan: "monthly",
+					status: "active"
+				});
+			} catch (err) {
+				console.log(err);
+				console.error(err);
+				showToast(
+					"Failed to add member. Please check the input and try again.",
+					"error"
+				);
+			}
 		}
 	};
 	console.log(form);
@@ -81,8 +111,8 @@ export function MemberModal({ member, onClose, onSave }) {
 						onChange={(e) => handleChange("plan", e.target.value)}
 						className="w-full px-3 py-2 rounded-lg bg-input-bg border border-border-input"
 					>
-						<option>Monthly</option>
-						<option>Yearly</option>
+						<option value={"monthly"}>monthly</option>
+						<option value={"yearly"}>yearly</option>
 					</select>
 				</div>
 
@@ -90,8 +120,8 @@ export function MemberModal({ member, onClose, onSave }) {
 				<div className="mb-4">
 					<label className="block text-sm text-gray-400 mb-1">Status</label>
 					<select
-						value={form.membershipStatus}
-						onChange={(e) => handleChange("membershipStatus", e.target.value)}
+						value={form.status}
+						onChange={(e) => handleChange("status", e.target.value)}
 						className="w-full px-3 py-2 rounded-lg bg-input-bg border border-border-input"
 					>
 						<option value="active">Active</option>
@@ -109,9 +139,9 @@ export function MemberModal({ member, onClose, onSave }) {
 					</button>
 					<button
 						onClick={handleSubmit}
-						className="px-4 py-2 bg-orange-500 rounded-lg text-white"
+						className={`px-4 py-2 ${isLoading ? "bg-gray-500" : "bg-orange-400"} rounded-lg text-white`}
 					>
-						{member ? "Update" : "Create"}
+						{isLoading ? <Spinner /> : member ? "Update" : "Add"}
 					</button>
 				</div>
 			</div>

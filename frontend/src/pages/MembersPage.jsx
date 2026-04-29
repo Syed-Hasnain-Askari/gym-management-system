@@ -12,10 +12,10 @@ import { MemberModal } from "../components/modals/MemberModal";
 // ─── MEMBERS PAGE ─────────────────────────────────────────────────────────────
 export function MembersPage() {
 	const dispatch = useDispatch();
-	const { data, isLoading, isFetching, isDeleting } = useSelector(
-		(state) => state.member.data
+	const { member, isLoading, isFetching, isDeleting } = useSelector(
+		(state) => state.member
 	);
-
+	console.log(member, "member");
 	const { openAddMember, openFeeManager } = useGymData();
 	const [showModal, setShowModal] = useState(false);
 	const [search, setSearch] = useState("");
@@ -27,7 +27,7 @@ export function MembersPage() {
 		setSelectedMember(m);
 		setShowModal((prev) => !prev);
 	};
-	const sourceMembers = Array.isArray(data) ? data : [];
+	const sourceMembers = Array.isArray(member) ? member : [];
 	const filtered = sourceMembers?.filter((m) => {
 		const matchSearch =
 			m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -63,7 +63,7 @@ export function MembersPage() {
 	useEffect(() => {
 		dispatch(fetchAllMembers());
 	}, [dispatch]);
-	console.log(data);
+
 	return (
 		<div>
 			<div className="mb-7 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -144,78 +144,84 @@ export function MembersPage() {
 										</td>
 									</tr>
 								)}
-								{filtered?.map((m) => (
-									<tr
-										key={m._id || m.id}
-										className="hover:bg-white/1.5 transition-colors"
-									>
-										<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
-											<div className="flex items-center gap-3">
-												<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-orange to-secondary-orange text-sm font-extrabold text-white">
-													{m.name?.charAt(0)}
-												</div>
-												<div>
-													<div className="text-[13px] font-bold text-[#e0e0f0]">
-														{m.name}
+								{isLoading ? (
+									<PageLoader label="Processing..." />
+								) : (
+									filtered?.map((m) => (
+										<tr
+											key={m._id || m.id}
+											className="hover:bg-white/1.5 transition-colors"
+										>
+											<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+												<div className="flex items-center gap-3">
+													<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-orange to-secondary-orange text-sm font-extrabold text-white">
+														{m.name?.charAt(0)}
 													</div>
-													<div className="text-[11px] text-[#444460]">
-														ID: {(m._id || m.id || "").substring(0, 6)}
+													<div>
+														<div className="text-[13px] font-bold text-[#e0e0f0]">
+															{m.name}
+														</div>
+														<div className="text-[11px] text-[#444460]">
+															ID: {(m._id || m.id || "").substring(0, 6)}
+														</div>
 													</div>
 												</div>
-											</div>
-										</td>
-										<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
-											<div className="text-[12px] text-[#9090b8]">
-												{m.email}
-											</div>
-											<div className="text-[12px] text-[#666680]">
-												{m?.phone}
-											</div>
-										</td>
-										<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
-											<span className="inline-block rounded-full bg-indigo-500/12 px-2.5 py-0.5 text-[11px] font-bold tracking-wider text-indigo-400 uppercase">
-												{m?.plan}
-											</span>
-										</td>
-										<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
-											{m?.startDate}
-										</td>
-										<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
-											<span className={getBadgeClasses(m?.status)}>
-												{m?.status}
-											</span>
-										</td>
-										<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
-											<div className="flex gap-1.5">
-												<button
-													title="Manage Fees"
-													className="cursor-pointer rounded-lg bg-green-500/12 p-2 text-green-400 transition-colors hover:bg-green-500/20"
-													onClick={() => openFeeManager(m._id)}
-												>
-													<Icons.fees />
-												</button>
-												<button
-													title="Edit"
-													className="cursor-pointer rounded-lg bg-white/6 p-2 text-[#9090b0] transition-colors hover:bg-white/12"
-													onClick={() => handleModal(m)}
-												>
-													<Icons.edit />
-												</button>
-												<button
-													title="Delete"
-													className="cursor-pointer rounded-lg bg-red-500/12 p-2 text-red-400 transition-colors hover:bg-red-500/20"
-													onClick={() => handleDeleteMember(m._id)}
-												>
-													{deletingId === m._id && isDeleting ? (
-														"..."
-													) : (
-														<Icons.trash />
-													)}
-												</button>
-											</div>
-										</td>
-									</tr>
-								))}
+											</td>
+											<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+												<div className="text-[12px] text-[#9090b8]">
+													{m.email}
+												</div>
+												<div className="text-[12px] text-[#666680]">
+													{m?.phone}
+												</div>
+											</td>
+											<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+												<span className="inline-block rounded-full bg-indigo-500/12 px-2.5 py-0.5 text-[11px] font-bold tracking-wider text-indigo-400 uppercase">
+													{m?.plan}
+												</span>
+											</td>
+											<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+												{Date.parse(m?.startDate)
+													? new Date(m?.startDate).toLocaleDateString()
+													: "N/A"}
+											</td>
+											<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+												<span className={getBadgeClasses(m?.status)}>
+													{m?.status}
+												</span>
+											</td>
+											<td className="border-b border-[#14141f] px-4 py-3.5 text-[13px] text-[#c0c0d8]">
+												<div className="flex gap-1.5">
+													<button
+														title="Manage Fees"
+														className="cursor-pointer rounded-lg bg-green-500/12 p-2 text-green-400 transition-colors hover:bg-green-500/20"
+														onClick={() => openFeeManager(m._id)}
+													>
+														<Icons.fees />
+													</button>
+													<button
+														title="Edit"
+														className="cursor-pointer rounded-lg bg-white/6 p-2 text-[#9090b0] transition-colors hover:bg-white/12"
+														onClick={() => handleModal(m)}
+													>
+														<Icons.edit />
+													</button>
+													<button
+														title="Delete"
+														className="cursor-pointer rounded-lg bg-red-500/12 p-2 text-red-400 transition-colors hover:bg-red-500/20"
+														onClick={() => handleDeleteMember(m._id)}
+													>
+														{deletingId === m._id && isDeleting ? (
+															"..."
+														) : (
+															<Icons.trash />
+														)}
+													</button>
+												</div>
+											</td>
+										</tr>
+									))
+								)}
 							</tbody>
 						</table>
 					)}
